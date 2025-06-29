@@ -76,12 +76,12 @@ impl Profile {
         let _path = Path::new(path);
 
         match _path.extension().and_then(std::ffi::OsStr::to_str) {
-            Some("json") => Self::load_runtime_json(&data, job_names)?,
-            _ => Self::load_runtime_yaml(&data, job_names)?,
+            Some("json") => Self::load_runtime_data_json(&data, job_names)?,
+            _ => Self::load_runtime_data_yaml(&data, job_names)?,
         }
     }
 
-    fn load_runtime_yaml(
+    pub fn load_runtime_data_yaml(
         data: &String,
         job_names: &[String],
     ) -> Result<Result<Runtime, Error>, Error> {
@@ -99,7 +99,7 @@ impl Profile {
         serde_yaml::from_str(data).map_err(Error::new)
     }
 
-    fn load_runtime_json(
+    pub fn load_runtime_data_json(
         data: &String,
         job_names: &[String],
     ) -> Result<Result<Runtime, Error>, Error> {
