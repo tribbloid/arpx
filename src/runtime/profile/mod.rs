@@ -7,6 +7,7 @@ pub use deserialize::Profile;
 use log::debug;
 use runtime_builder::RuntimeBuilder;
 use std::fs;
+use std::path::Path;
 
 /// Represents and contains a runtime object defined by a profile.
 ///
@@ -72,15 +73,47 @@ impl Profile {
         debug!("Loading profile from path: {}", path);
 
         let data = fs::read_to_string(path).context("Error reading file")?;
-        let profile = Self::deserialize_from_str(&data).context("Error deserializing file")?;
+        let _path = Path::new(path);
 
-        RuntimeBuilder::from_profile_and_job_names(profile, job_names)
-            .context("Error building runtime")
+        match _path.extension().and_then(std::ffi::OsStr::to_str) {
+            Some("json") => Self::load_runtime_json(&data, job_names)?,
+            _ => Self::load_runtime_yaml(&data, job_names)?,
+        }
     }
 
-    fn deserialize_from_str(data: &str) -> Result<Self> {
+    fn load_runtime_yaml(
+        data: &String,
+        job_names: &[String],
+    ) -> Result<Result<Runtime, Error>, Error> {
+        let profile = Self::deserialize_from_yaml(&data).context("Error deserializing file")?;
+
+        Ok(
+            RuntimeBuilder::from_profile_and_job_names(profile, job_names)
+                .context("Error building runtime"),
+        )
+    }
+
+    fn deserialize_from_yaml(data: &str) -> Result<Self> {
         debug!("Deserializing profile data");
 
         serde_yaml::from_str(data).map_err(Error::new)
+    }
+
+    fn load_runtime_json(
+        data: &String,
+        job_names: &[String],
+    ) -> Result<Result<Runtime, Error>, Error> {
+        let profile = Self::deserialize_from_json(&data).context("Error deserializing file")?;
+
+        Ok(
+            RuntimeBuilder::from_profile_and_job_names(profile, job_names)
+                .context("Error building runtime"),
+        )
+    }
+
+    fn deserialize_from_json(data: &str) -> Result<Self> {
+        debug!("Deserializing profile data");
+
+        serde_json::from_str(data).map_err(Error::new)
     }
 }

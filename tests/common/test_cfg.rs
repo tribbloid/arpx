@@ -52,6 +52,21 @@ impl TC {
         self
     }
 
+    pub fn profile_json(mut self, input: &str) -> Self {
+        self.profile.push_str(input);
+
+        let mut dir = temp_dir();
+        dir.push(format!("{}_{}.json", self.name, self.datetime));
+        self.profile_path = dir.as_path().display().to_string();
+
+        File::create(dir)
+            .context("Test profile creation failed")
+            .unwrap();
+        write(&self.profile_path, &self.profile).unwrap();
+
+        self
+    }
+
     pub fn opts(mut self, input: &str) -> Self {
         self.opts.push_str(input);
 
