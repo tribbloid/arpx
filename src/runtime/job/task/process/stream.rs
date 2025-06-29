@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use crate::runtime::job::task::log_monitor::message::{LogMonitorCmd, LogMonitorMessage};
 use anyhow::{bail, Context, Result};
 use crossbeam_channel::{unbounded, Receiver, Select, Sender};

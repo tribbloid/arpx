@@ -1,7 +1,17 @@
 use arpx::Runtime;
+use log::LevelFilter;
+use log4rs::append::console::ConsoleAppender;
+use log4rs::config::{Appender, Config, Root};
 use std::path::Path;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Initialize the logger
+    let stdout = ConsoleAppender::builder().build();
+    let config = Config::builder()
+        .appender(Appender::builder().build("stdout", Box::new(stdout)))
+        .build(Root::builder().appender("stdout").build(LevelFilter::Info))?;
+    log4rs::init_config(config)?;
+
     println!("🚀 Starting arpx runtime to execute minimal.yaml...");
 
     // Load the YAML profile
