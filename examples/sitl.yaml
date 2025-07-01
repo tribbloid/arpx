@@ -1,0 +1,27 @@
+jobs:
+  foo: |
+    sitl_download;
+    sitl_permit;
+    sitl_run;
+
+processes:
+  sitl_download:
+    command: wget "https://firmware.ardupilot.org/Plane/stable/SITL_x86_64_linux_gnu/arduplane" -P "${HOME}/.cache/ardupilot/sitl" -N --force-directories
+    onfail: arpx_exit_error
+  sitl_permit:
+    command: chmod +x "${HOME}/.cache/ardupilot/sitl/arduplane"
+    onfail: arpx_exit_error
+
+  sitl_mkdir_state:
+    command: mkdir -p "./tmp/ardupilot/sitl"
+    onfail: arpx_exit_error
+  sitl_run:
+    command: ${HOME}/.cache/ardupilot/sitl/arduplane -S -I0 --model plane --home 47.397742,8.545594,488,353 --uartA=tcp:localhost:5760 -s1
+    #    cwd: "${HOME}/tmp/ardupilot/sitl"
+    onfail: arpx_exit_error
+
+log_monitors:
+  quux:
+    buffer_size: 20
+    test: 'echo "$ARPX_BUFFER" | grep -q "bar"' # or equivalent for your system
+    ontrigger: quux
