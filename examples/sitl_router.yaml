@@ -1,0 +1,35 @@
+jobs:
+  foo: |
+    [sitl_download; mavp2p_download;]
+    [sitl_run; mavp2p_run;]
+
+processes:
+  sitl_download:
+    command: wget "https://firmware.ardupilot.org/Plane/stable/SITL_x86_64_linux_gnu/arduplane" -P "${HOME}/.cache/ardupilot/sitl" -N
+    onsuccess: sitl_permit
+  sitl_permit:
+    command: chmod +x "${HOME}/.cache/ardupilot/sitl/arduplane"
+    onfail: arpx_exit_error
+
+  mavp2p_download:
+    command: wget "https://storage.googleapis.com/ci_public/mavlink/linux/mavp2p" -P "${HOME}/.cache/mavp2p" -N
+    onsuccess: mavp2p_permit
+  mavp2p_permit:
+    command: chmod +x "${HOME}/.cache/mavp2p/mavp2p"
+    onfail: arpx_exit_error
+
+  sitl_mkdir_state:
+    command: mkdir -p "./tmp/ardupilot/sitl"
+
+  sitl_run:
+    command: ${HOME}/.cache/ardupilot/sitl/arduplane -S -I0 --model plane --home 47.397742,8.545594,488,353 --uartA=tcp:localhost:5760 -s1
+    #    cwd: "${HOME}/tmp/ardupilot/sitl"
+
+  mavp2p_run:
+    command: ${HOME}/.cache/mavp2p/mavp2p tcps:localhost:5760 udpc:localhost:14550
+
+log_monitors:
+  quux:
+    buffer_size: 20
+    test: 'echo "$ARPX_BUFFER" | grep -q "bar"' # or equivalent for your system
+    ontrigger: quux
