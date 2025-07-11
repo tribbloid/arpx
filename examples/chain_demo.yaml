@@ -1,0 +1,13 @@
+jobs:
+  foo: |
+    [long_running; always_fail;]
+
+processes:
+  long_running:
+    command: gedit
+    onfail: arpx_exit_error
+
+  always_fail:
+    command: sleep 5 && "fail!"
+    onfail: arpx_exit_error
+

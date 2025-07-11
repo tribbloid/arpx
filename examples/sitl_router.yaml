@@ -20,13 +20,16 @@ processes:
 
   sitl_mkdir_state:
     command: mkdir -p "./tmp/ardupilot/sitl"
+  #    this doesn't work, neither does $HOME
 
   sitl_run:
-    command: ${HOME}/.cache/ardupilot/sitl/arduplane -S -I0 --model plane --home 47.397742,8.545594,488,353 --uartA=tcp:localhost:5760 -s1
-    #    cwd: "${HOME}/tmp/ardupilot/sitl"
+    command: ${HOME}/.cache/ardupilot/sitl/arduplane -S -I0 -s1 --model plane --home 47.397742,8.545594,488,353 --uartA=tcp:localhost:5760
+    cwd: "/tmp"
+    onfail: arpx_exit_error
 
   mavp2p_run:
     command: ${HOME}/.cache/mavp2p/mavp2p tcps:localhost:5760 udpc:localhost:14550
+    onfail: arpx_exit_error
 
 log_monitors:
   quux:
