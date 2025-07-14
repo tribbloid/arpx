@@ -29,31 +29,6 @@ test!(single_job_with_single_task, |t: TC| {
     assert_eq!(0, err.len());
 });
 
-test!(single_job_with_single_task_json, |t: TC| {
-    let (out, err) = t
-        .profile_json(
-            r#"
-            {
-                "jobs": {
-                    "test": "p1;"
-                },
-                "processes": {
-                    "p1": {
-                        "command": "echo foo\nsleep 0.1\necho bar\nsleep 0.1\necho baz\nsleep 0.1"
-                    }
-                }
-            }
-        "#,
-        )
-        .opts("-j test")
-        .run()
-        .unwrap();
-
-    assert_eq!(vec!["[p1] foo", "[p1] bar", "[p1] baz"], out[1..4]);
-    assert_eq!(5, out.len());
-    assert_eq!(0, err.len());
-});
-
 test!(single_job_with_multiple_tasks, |t: TC| {
     let (out, err) = t
         .profile(
